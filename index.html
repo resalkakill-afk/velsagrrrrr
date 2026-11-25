@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎂 АРТЁМ, ЭТО ТВОЙ ДЕНЬ! 🎂</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Roboto',system-ui,sans-serif;user-select:none;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff}
+  #app{width:100vw;height:100vh;position:relative;overflow:hidden;background:#05050a}
+
+  /* ===== ОБЩИЕ СЛАЙДЫ ===== */
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;opacity:0;pointer-events:none;transition:opacity .8s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.4,0,.2,1);transform:scale(.92) translateY(30px);overflow-y:auto;overflow-x:hidden;z-index:1}
+  .slide.active{opacity:1;pointer-events:all;transform:scale(1) translateY(0)}
+  .slide::-webkit-scrollbar{width:6px}
+  .slide::-webkit-scrollbar-thumb{background:#0ff;border-radius:6px}
+
+  /* ===== ФОНЫ СЛАЙДОВ ===== */
+  #slide1{background:radial-gradient(circle at 20% 30%,#1a0033,#000)}
+  #slide2{background:radial-gradient(circle at 80% 20%,#001a2e,#000)}
+  #slide3{background:radial-gradient(circle at 50% 50%,#1a001a,#0a0010,#000)}
+  #slide4{background:radial-gradient(circle at 30% 70%,#001a1a,#000)}
+  #slide5{background:radial-gradient(circle at 50% 40%,#0a0a1a,#000)}
+
+  /* ===== КНОПКИ ===== */
+  .btn{background:linear-gradient(135deg,#00c9ff,#92fe9d,#ff00cc);background-size:200% 200%;border:none;color:#000;font-weight:900;font-size:clamp(1rem,3.5vw,1.4rem);padding:1rem 2.6rem;border-radius:60px;cursor:pointer;box-shadow:0 0 30px #00c9ffaa,0 0 60px #92fe9d55;transition:transform .2s,box-shadow .2s,background-position .5s;letter-spacing:1.5px;margin-top:2rem;text-transform:uppercase;z-index:10;animation:btnPulse 1.8s infinite,btnGradient 4s linear infinite;position:relative;overflow:hidden}
+  .btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 30%,#ffffff88 50%,transparent 70%);animation:shimmer 2.5s infinite;pointer-events:none}
+  @keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
+  @keyframes btnPulse{0%{box-shadow:0 0 30px #00c9ffaa,0 0 60px #92fe9d55}50%{box-shadow:0 0 60px #00c9ff,0 0 120px #ff00cc}100%{box-shadow:0 0 30px #00c9ffaa,0 0 60px #92fe9d55}}
+  @keyframes btnGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .btn:hover{transform:scale(1.06) rotate(-1deg);box-shadow:0 0 70px #00c9ff,0 0 120px #ff00cc}
+  .btn:active{transform:scale(.94)}
+
+  /* ===== СЛАЙД 1 ===== */
+  .loading-text{font-size:clamp(1.1rem,4.5vw,2rem);font-weight:700;color:#0ff;text-shadow:0 0 20px #0ff,0 0 50px #0ff;letter-spacing:4px;animation:flicker .12s infinite alternate;font-family:monospace;min-height:2em}
+  @keyframes flicker{0%{opacity:1}100%{opacity:.6}}
+  .progress-bar-container{width:min(85%,520px);height:26px;background:#111;border-radius:20px;margin:2rem 0;overflow:hidden;border:2px solid #0ff;box-shadow:0 0 25px #0ff,inset 0 0 15px #0ff33;position:relative}
+  .progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#0ff,#f0f,#ff0,#0ff);background-size:300% 100%;border-radius:20px;transition:width .1s linear;box-shadow:0 0 25px #0ff;animation:progressGrad 2s linear infinite}
+  @keyframes progressGrad{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .progress-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:monospace;font-weight:900;font-size:.85rem;color:#000;text-shadow:0 0 4px #fff;z-index:2}
+  .epic-title{font-size:clamp(2rem,11vw,6rem);font-weight:900;color:#fff;text-shadow:0 0 40px #f0f,0 0 90px #0ff,0 0 140px #ff0;opacity:0;transform:scale(.3) rotate(-8deg);transition:opacity .6s,transform .7s cubic-bezier(.68,-.55,.27,1.55);line-height:1.05;margin:.4rem 0;letter-spacing:-2px}
+  .epic-title.show{opacity:1;transform:scale(1) rotate(0)}
+  .subtitle{font-size:clamp(1rem,4vw,1.8rem);color:#ffd700;text-shadow:0 0 30px #ffd700,0 0 60px #ff8800;opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s;margin-top:1rem;font-weight:700;letter-spacing:1px;max-width:90%}
+  .subtitle.show{opacity:1;transform:translateY(0)}
+
+  /* ===== СЛАЙД 2 ===== */
+  .scanning-dossier-title{font-size:clamp(1.5rem,5.5vw,2.8rem);font-weight:900;color:#0ff;text-shadow:0 0 30px #0ff,0 0 60px #00aaff;margin-bottom:1.2rem;letter-spacing:2px;animation:titleFlicker 3s infinite}
+  @keyframes titleFlicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.3}94%{opacity:1}96%{opacity:.5}97%{opacity:1}}
+  .scan-container{position:relative;width:min(92%,620px);background:rgba(0,255,255,.04);border:2px solid #0ff;border-radius:22px;padding:1.8rem 1.5rem;box-shadow:0 0 50px #0ff33,inset 0 0 50px #0ff11;text-align:left;overflow:hidden;backdrop-filter:blur(4px)}
+  .scan-line{position:absolute;left:0;width:100%;height:5px;background:linear-gradient(90deg,transparent,#0ff,#fff,#0ff,transparent);box-shadow:0 0 20px #0ff,0 0 40px #0ff;animation:scanMove 1.6s linear infinite;z-index:2}
+  @keyframes scanMove{0%{top:0}100%{top:100%}}
+  .scan-corner{position:absolute;width:18px;height:18px;border:2px solid #0ff;box-shadow:0 0 12px #0ff}
+  .scan-corner.tl{top:8px;left:8px;border-right:none;border-bottom:none}
+  .scan-corner.tr{top:8px;right:8px;border-left:none;border-bottom:none}
+  .scan-corner.bl{bottom:8px;left:8px;border-right:none;border-top:none}
+  .scan-corner.br{bottom:8px;right:8px;border-left:none;border-top:none}
+  .dossier-item{margin:.55rem 0;font-size:clamp(.85rem,2.9vw,1.15rem);display:flex;flex-wrap:wrap;gap:.35rem;opacity:0;transform:translateX(-30px);transition:opacity .45s,transform .45s;padding:.3rem 0;border-bottom:1px dashed #0ff22}
+  .dossier-item.visible{opacity:1;transform:translateX(0)}
+  .dossier-label{color:#0ff;font-weight:800;min-width:145px;text-shadow:0 0 10px #0ff;font-family:monospace}
+  .dossier-value{color:#fff;font-weight:500}
+  .dossier-value.gold{color:#ffd700;text-shadow:0 0 12px #ffd700;font-weight:900}
+  .dossier-value.hot{color:#ff4488;text-shadow:0 0 12px #ff4488;font-weight:900}
+
+  /* ===== СЛАЙД 3 ===== */
+  .congrats-title{font-size:clamp(1.7rem,7vw,3.6rem);font-weight:900;background:linear-gradient(45deg,#ff0,#f0f,#0ff,#0f0,#ff0);background-size:400% 400%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rainbow 3s linear infinite;margin-bottom:1rem;filter:drop-shadow(0 0 20px #f0f);line-height:1.1}
+  @keyframes rainbow{0%{background-position:0% 50%}100%{background-position:400% 50%}}
+  .congrats-text{font-size:clamp(.85rem,2.7vw,1.05rem);line-height:1.65;max-width:720px;color:#e8e8f0;text-align:left;background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,0,255,.04));padding:1.3rem 1.5rem;border-radius:22px;border:1px solid #ffffff22;margin:1rem 0;max-height:48vh;overflow-y:auto;box-shadow:0 0 40px #f0f22,inset 0 0 30px #fff05;backdrop-filter:blur(6px)}
+  .congrats-text::-webkit-scrollbar{width:6px}
+  .congrats-text::-webkit-scrollbar-thumb{background:linear-gradient(#f0f,#0ff);border-radius:6px}
+  .congrats-text p{margin-bottom:.75rem}
+  .congrats-text p:first-child{font-size:1.15em;font-weight:800;color:#ffd700;text-shadow:0 0 15px #ffd700}
+
+  /* ===== СЛАЙД 4 ===== */
+  .future-list{display:flex;flex-direction:column;gap:.75rem;width:min(92%,620px);margin:1.5rem 0;position:relative;z-index:2}
+  .future-item{background:linear-gradient(135deg,rgba(0,200,255,.12),rgba(0,255,150,.06));border-left:4px solid #0ff;padding:.85rem 1.2rem;border-radius:0 14px 14px 0;font-size:clamp(.9rem,2.9vw,1.15rem);color:#b0f0ff;text-align:left;transform:translateX(-40px);opacity:0;transition:opacity .5s,transform .5s;box-shadow:0 0 25px #0ff22;position:relative;overflow:hidden}
+  .future-item::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,#0ff44,transparent);animation:sweep 2.5s infinite}
+  @keyframes sweep{0%{left:-100%}100%{left:100%}}
+  .future-item.visible{opacity:1;transform:translateX(0)}
+  .future-item span{color:#fff;font-weight:800;text-shadow:0 0 10px #0ff}
+  .rocket-wrap{position:relative;height:80px;width:100%;display:flex;justify-content:center;align-items:center;margin-top:.5rem}
+  .rocket{font-size:3.5rem;display:inline-block;animation:rocketLaunch 2.4s ease-in infinite;filter:drop-shadow(0 0 15px #ff8800)}
+  @keyframes rocketLaunch{0%{transform:translateY(20px) rotate(-45deg) scale(1);opacity:1}70%{transform:translateY(-60px) rotate(-45deg) scale(1.2);opacity:1}100%{transform:translateY(-120px) rotate(-45deg) scale(.5);opacity:0}}
+  .rocket-flame{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:1.5rem;animation:flame .15s infinite alternate}
+  @keyframes flame{0%{opacity:.7;transform:translateX(-50%) scaleY(1)}100%{opacity:1;transform:translateX(-50%) scaleY(1.4)}}
+  .only-begin{font-size:clamp(1rem,4vw,1.9rem);font-weight:900;color:#ffd700;text-shadow:0 0 30px #ffd700,0 0 60px #ff8800;margin-top:.5rem;letter-spacing:2px;animation:pulseGlow 1.5s infinite alternate}
+  @keyframes pulseGlow{0%{opacity:.7;transform:scale(.97)}100%{opacity:1;transform:scale(1.03)}}
+
+  /* ===== СЛАЙД 5 ===== */
+  .final-text{font-size:clamp(1.5rem,6vw,3rem);font-weight:800;color:#fff;margin:.5rem 0;opacity:0;transform:translateY(25px);transition:opacity 1s,transform 1s;text-shadow:0 0 30px #fff,0 0 60px #0ff}
+  .final-text.show{opacity:1;transform:translateY(0)}
+  .final-text.gold{color:#ffd700;text-shadow:0 0 40px #ffd700,0 0 80px #ff8800;font-size:clamp(1.2rem,4.8vw,2.4rem)}
+
+  /* ===== СЕКРЕТНЫЙ РЕЖИМ ===== */
+  #alarm-screen{position:fixed;inset:0;background:#1a0000;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+  #alarm-screen.active{display:flex;animation:shake .28s infinite}
+  @keyframes shake{0%{transform:translate(0,0)}20%{transform:translate(-6px,4px)}40%{transform:translate(5px,-5px)}60%{transform:translate(-4px,-4px)}80%{transform:translate(4px,5px)}100%{transform:translate(0,0)}}
+  .alarm-flash{position:absolute;inset:0;background:radial-gradient(circle,#ff0000aa 0%,transparent 70%);animation:flash .45s infinite alternate;z-index:0;pointer-events:none}
+  @keyframes flash{0%{opacity:.15}100%{opacity:.75}}
+  .alarm-grid{position:absolute;inset:0;background-image:linear-gradient(#ff000022 1px,transparent 1px),linear-gradient(90deg,#ff000022 1px,transparent 1px);background-size:40px 40px;z-index:0;animation:gridMove 4s linear infinite;pointer-events:none}
+  @keyframes gridMove{0%{background-position:0 0}100%{background-position:40px 40px}}
+  .alarm-text{position:relative;z-index:10;font-size:clamp(2rem,11vw,6.5rem);font-weight:900;color:#ff0000;text-shadow:0 0 30px #ff0000,0 0 80px #ff0000,0 0 140px #ff0000;letter-spacing:5px;animation:alarmPulse .35s infinite alternate;text-align:center;padding:1rem;font-family:monospace}
+  @keyframes alarmPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.07);opacity:.85}}
+  .alarm-sub{position:relative;z-index:10;font-size:clamp(.9rem,3.2vw,1.5rem);color:#ff6666;margin-top:1rem;font-family:monospace;font-weight:700;letter-spacing:2px;animation:blink .4s infinite;min-height:2em;text-align:center;padding:0 1rem}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .glitch-text{position:relative;z-index:15;font-size:clamp(.75rem,2.4vw,1.05rem);color:#ff8888;font-family:monospace;margin-top:1rem;animation:glitch .18s infinite alternate;letter-spacing:1px;text-align:center;padding:0 1rem}
+  @keyframes glitch{0%{transform:translate(0,0);text-shadow:2px 0 #0ff,-2px 0 #f0f}50%{transform:translate(-2px,1px);text-shadow:-2px 0 #ff0,2px 0 #0f0}100%{transform:translate(2px,-1px);text-shadow:2px 0 #f0f,-2px 0 #0ff}}
+  .matrix-bg{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden;font-family:monospace;font-size:1.1rem;color:#ff0000aa;line-height:1.2}
+  .matrix-bg span{position:absolute;animation:fall linear infinite;text-shadow:0 0 8px #ff0000}
+  @keyframes fall{0%{transform:translateY(-100vh)}100%{transform:translateY(100vh)}}
+  .scan-bar{position:absolute;left:0;width:100%;height:4px;background:linear-gradient(90deg,transparent,#ff0000,#fff,#ff0000,transparent);box-shadow:0 0 25px #ff0000;z-index:5;animation:scanBar 2s linear infinite;pointer-events:none}
+  @keyframes scanBar{0%{top:0}100%{top:100%}}
+  .scan-bar2{animation-delay:1s;animation-direction:reverse}
+  .final-alarm-message{position:relative;z-index:20;display:none;flex-direction:column;align-items:center;padding:2rem 1.5rem;background:rgba(0,0,0,.75);border:3px solid #ff0000;border-radius:30px;box-shadow:0 0 100px #ff0000,inset 0 0 60px #ff000033;max-width:92vw;backdrop-filter:blur(8px)}
+  .final-alarm-message.active{display:flex;animation:finalPop .6s cubic-bezier(.68,-.55,.27,1.55)}
+  @keyframes finalPop{0%{transform:scale(.2) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .final-alarm-title{font-size:clamp(1.6rem,7.5vw,4rem);font-weight:900;color:#ffd700;text-shadow:0 0 40px #ffd700,0 0 80px #ff0000,0 0 120px #ff8800;text-align:center;line-height:1.1;animation:finalGlow 1.2s infinite alternate}
+  @keyframes finalGlow{0%{filter:brightness(1)}100%{filter:brightness(1.4)}}
+  .final-alarm-sub{font-size:clamp(.85rem,3vw,1.25rem);color:#ff9999;margin-top:1rem;text-align:center;font-weight:600;line-height:1.5}
+
+  /* ===== КНОПКА ЗВУКА ===== */
+  #mute-btn{position:fixed;top:12px;right:12px;z-index:10001;background:#111;border:2px solid #0ff;color:#0ff;font-size:1.4rem;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px #0ff55;transition:all .2s;backdrop-filter:blur(4px)}
+  #mute-btn:hover{background:#0ff;color:#000;transform:scale(1.1) rotate(10deg)}
+  #mute-btn.off{border-color:#ff4444;color:#ff4444;box-shadow:0 0 20px #ff444455}
+
+  /* ===== ЧАСТИЦЫ / ЭМОДЗИ ===== */
+  .particle{position:fixed;pointer-events:none;z-index:9998;will-change:transform,opacity;font-size:1.5rem}
+  .confetti{position:fixed;width:10px;height:10px;pointer-events:none;z-index:9998;will-change:transform,opacity}
+
+  /* ===== БЕГУЩАЯ СТРОКА МЕМОВ ===== */
+  .marquee{position:fixed;bottom:0;left:0;width:100%;overflow:hidden;background:linear-gradient(90deg,#000,#1a0033,#000);border-top:2px solid #f0f;z-index:9000;padding:.4rem 0;white-space:nowrap;font-family:monospace;font-weight:700;font-size:.9rem;color:#0ff;text-shadow:0 0 10px #0ff;pointer-events:none}
+  .marquee-inner{display:inline-block;animation:marqueeMove 22s linear infinite;padding-left:100%}
+  @keyframes marqueeMove{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
+  /* ===== ПЛАВАЮЩИЕ ЭМОДЗИ ===== */
+  .float-emoji{position:absolute;pointer-events:none;opacity:.55;animation:floatUp linear infinite;z-index:1;filter:drop-shadow(0 0 10px currentColor)}
+  @keyframes floatUp{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-20vh) rotate(360deg)}}
+
+  /* ===== АДАПТИВ ===== */
+  @media(max-width:600px){
+    .dossier-label{min-width:105px;font-size:.8rem}
+    .btn{font-size:1rem;padding:.85rem 1.8rem}
+    .congrats-text{max-height:42vh;padding:1rem}
+    .scan-container{padding:1.3rem 1rem}
+    .marquee{font-size:.7rem}
+  }
+  @media(max-height:600px){
+    .congrats-text{max-height:38vh}
+    .epic-title{font-size:clamp(1.5rem,9vw,4rem)}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ========== СЛАЙД 1 ========== -->
+  <div class="slide active" id="slide1">
+    <div class="float-emoji" style="left:10%;font-size:2rem;animation-duration:12s;color:#0ff">🎂</div>
+    <div class="float-emoji" style="left:85%;font-size:2.5rem;animation-duration:15s;animation-delay:3s;color:#f0f">🎉</div>
+    <div class="float-emoji" style="left:50%;font-size:1.8rem;animation-duration:18s;animation-delay:6s;color:#ff0">🚀</div>
+    <div class="float-emoji" style="left:25%;font-size:2rem;animation-duration:14s;animation-delay:2s;color:#0f0">🧢</div>
+    <div class="float-emoji" style="left:70%;font-size:1.6rem;animation-duration:16s;animation-delay:5s;color:#f80">💰</div>
+
+    <div class="loading-text" id="loadingText">ЗАГРУЗКА СИСТЕМЫ ПОЗДРАВЛЕНИЯ...</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressFill"></div>
+      <div class="progress-pct" id="progressPct">0%</div>
+    </div>
+    <div class="epic-title" id="epicTitle1">СЕГОДНЯ НЕОБЫЧНЫЙ ДЕНЬ...</div>
+    <div class="subtitle" id="epicSubtitle">АРТЁМ, ТЕБЯ ОЖИДАЕТ НЕЧТО ЛЕГЕНДАРНОЕ</div>
+    <button class="btn" id="btnGoSlide2" style="display:none">Я ГОТОВ К ЭТОМУ 🔥</button>
+  </div>
+
+  <!-- ========== СЛАЙД 2 ========== -->
+  <div class="slide" id="slide2">
+    <div class="float-emoji" style="left:8%;font-size:2rem;animation-duration:13s;color:#0ff">🔍</div>
+    <div class="float-emoji" style="left:88%;font-size:2rem;animation-duration:17s;animation-delay:4s;color:#f0f">📡</div>
+    <div class="scanning-dossier-title">ОБЪЕКТ ОБНАРУЖЕН: АРТЁМ</div>
+    <div class="scan-container" id="scanContainer">
+      <div class="scan-line"></div>
+      <div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+      <div class="scan-corner bl"></div><div class="scan-corner br"></div>
+      <div class="dossier-item" id="d1"><span class="dossier-label">&gt; Имя:</span><span class="dossier-value">Артём</span></div>
+      <div class="dossier-item" id="d2"><span class="dossier-label">&gt; Место знакомства:</span><span class="dossier-value">Telegram 📱</span></div>
+      <div class="dossier-item" id="d3"><span class="dossier-label">&gt; Уровень легендарности:</span><span class="dossier-value gold">9999/10 ⭐</span></div>
+      <div class="dossier-item" id="d4"><span class="dossier-label">&gt; Вероятность стать легендой:</span><span class="dossier-value gold">100% 🏆</span></div>
+      <div class="dossier-item" id="d5"><span class="dossier-label">&gt; Главная миссия:</span><span class="dossier-value hot">собрать на кепку Дурова 🧢</span></div>
+      <div class="dossier-item" id="d6"><span class="dossier-label">&gt; Статус:</span><span class="dossier-value">будущий миллионер (по предварительным прогнозам дивана) 🛋️💸</span></div>
+    </div>
+    <button class="btn" id="btnGoSlide3">ДАЛЕЕ →</button>
+  </div>
+
+  <!-- ========== СЛАЙД 3 ========== -->
+  <div class="slide" id="slide3">
+    <div class="float-emoji" style="left:6%;font-size:2.2rem;animation-duration:11s;color:#ffd700">🎁</div>
+    <div class="float-emoji" style="left:90%;font-size:2rem;animation-duration:16s;animation-delay:3s;color:#f0f">💸</div>
+    <div class="float-emoji" style="left:45%;font-size:1.8rem;animation-duration:19s;animation-delay:5s;color:#0ff">🚀</div>
+    <div class="float-emoji" style="left:75%;font-size:2rem;animation-duration:14s;animation-delay:2s;color:#0f0">⭐</div>
+    <div class="float-emoji" style="left:20%;font-size:1.8rem;animation-duration:13s;animation-delay:7s;color:#ff0">🧢</div>
+
+    <div class="congrats-title">С ДНЁМ РОЖДЕНИЯ, АРТЁМ! 🎉</div>
+    <div class="congrats-text" id="congratsText">
+      <p>Артём, с днём рождения! 🎂</p>
+      <p>Кто бы мог подумать, что обычное знакомство в Telegram приведёт к знакомству с таким легендарным человеком. 😎</p>
+      <p>Желаю тебе огромной удачи, крепких нервов, здоровья, денег столько, чтобы калькулятор отказывался считать, и возможностей, от которых даже Дуров немного удивится. 💸🤯</p>
+      <p>Я реально верю в тебя! И я абсолютно уверен, что однажды ты соберёшь на ту самую легендарную кепку Дурова. 🧢🔥</p>
+      <p>А если не соберёшь — значит, кепка сама должна будет приехать к тебе с курьером. 🚚🧢</p>
+      <p>Не сдавайся, двигайся к своим целям, развивайся и помни: даже самые большие легенды когда-то просто сидели в Telegram. 📱✨</p>
+      <p>С днём рождения! Пусть твоя жизнь будет настолько успешной, чтобы даже твои скриншоты банковского счёта боялись сливать в интернет! 🔒💰😂</p>
+    </div>
+    <button class="btn" id="btnGoSlide4">ПРОГНОЗ БУДУЩЕГО →</button>
+  </div>
+
+  <!-- ========== СЛАЙД 4 ========== -->
+  <div class="slide" id="slide4">
+    <div class="float-emoji" style="left:12%;font-size:2rem;animation-duration:12s;color:#0ff">🛸</div>
+    <div class="float-emoji" style="left:86%;font-size:2rem;animation-duration:15s;animation-delay:2s;color:#ffd700">🌟</div>
+    <div class="congrats-title" style="font-size:clamp(1.5rem,6vw,2.8rem)">АРТЁМ В 2030 ГОДУ</div>
+    <div class="future-list">
+      <div class="future-item" id="f1">🧢 <span>Кепка Дурова:</span> получена.</div>
+      <div class="future-item" id="f2">💰 <span>Финансовое положение:</span> подозрительно хорошее.</div>
+      <div class="future-item" id="f3">📊 <span>Количество подписчиков:</span> неизвестно, сервер не выдержал.</div>
+      <div class="future-item" id="f4">👑 <span>Статус:</span> легенда Telegram.</div>
+      <div class="future-item" id="f5">😤 <span>Количество завистников:</span> система перестала считать.</div>
+    </div>
+    <div class="rocket-wrap">
+      <div class="rocket">🚀<span class="rocket-flame">🔥</span></div>
+    </div>
+    <div class="only-begin">ЭТО ТОЛЬКО НАЧАЛО</div>
+    <button class="btn" id="btnGoSlide5">ФИНАЛ →</button>
+  </div>
+
+  <!-- ========== СЛАЙД 5 ========== -->
+  <div class="slide" id="slide5">
+    <div class="float-emoji" style="left:15%;font-size:2rem;animation-duration:14s;color:#f0f">😏</div>
+    <div class="float-emoji" style="left:82%;font-size:2rem;animation-duration:16s;animation-delay:3s;color:#0ff">👀</div>
+    <div class="final-text" id="finalText1">Ну что, Артём...</div>
+    <div class="final-text gold" id="finalText2">Это ещё не всё 😏</div>
+    <button class="btn" id="btnContinue" style="margin-top:2rem;display:none">ПРОДОЛЖИТЬ</button>
+  </div>
+
+</div>
+
+<!-- ========== СЕКРЕТНЫЙ РЕЖИМ ========== -->
+<div id="alarm-screen">
+  <div class="alarm-flash"></div>
+  <div class="alarm-grid"></div>
+  <div class="scan-bar"></div>
+  <div class="scan-bar scan-bar2"></div>
+  <div class="matrix-bg" id="matrixBg"></div>
+  <div class="alarm-text" id="alarmMainText">ВАС ЗАМЕТИЛИ</div>
+  <div class="alarm-sub" id="alarmSubText">ОБЪЕКТ АРТЁМ ОБНАРУЖЕН</div>
+  <div class="glitch-text" id="glitchText">ПОПЫТКА СКРЫТЬСЯ НЕ УДАЛАСЬ</div>
+  <div class="final-alarm-message" id="finalAlarmMessage">
+    <div class="final-alarm-title">С ДНЁМ РОЖДЕНИЯ, ЛЕГЕНДА! 😂🎂</div>
+    <div class="final-alarm-sub">ТЕПЕРЬ ТЫ ОФИЦИАЛЬНО ПОД НАБЛЮДЕНИЕМ КЕПКИ ДУРОВА 🧢👀</div>
+    <button class="btn" id="btnBackToCongrats" style="margin-top:2rem;background:linear-gradient(135deg,#ff0,#f0f,#0ff)">ВЕРНУТЬСЯ К ПОЗДРАВЛЕНИЮ</button>
+  </div>
+</div>
+
+<!-- Кнопка звука -->
+<button id="mute-btn" title="Звук вкл/выкл">🔊</button>
+
+<!-- Бегущая строка мемов -->
+<div class="marquee"><div class="marquee-inner" id="marqueeInner">🧢 КЕПКА ДУРОВА УЖЕ В ПУТИ • 🚀 АРТЁМ — БУДУЩАЯ ЛЕГЕНДА TELEGRAM • 💸 КАЛЬКУЛЯТОР ОТКАЗЫВАЕТСЯ СЧИТАТЬ ТВОИ ДЕНЬГИ • 😂 ЭТО НЕ БАГ, ЭТО ФИЧА • 🔥 С ДНЁМ РОЖДЕНИЯ, АРТЁМ! • 🎂 СИСТЕМА ПОЗДРАВЛЕНИЯ ЗАГРУЖЕНА НА 9999% • 👀 КЕПКА НАБЛЮДАЕТ ЗА ТОБОЙ</div></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const rand = (a,b) => Math.random()*(b-a)+a;
+  const randInt = (a,b) => Math.floor(rand(a,b+1));
+
+  // ==================== ЗВУК ====================
+  let audioCtx = null;
+  let soundEnabled = true;
+  let alarmNodes = null;
+
+  function initAudio(){
+    if(!audioCtx){
+      try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    }
+    if(audioCtx && audioCtx.state==='suspended'){ audioCtx.resume(); }
+  }
+
+  // Универсальный тон
+  function playTone(freq, dur, type='sine', vol=0.12, freqEnd=null){
+    if(!soundEnabled) return;
+    initAudio();
+    if(!audioCtx) return;
+    try{
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      if(freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, audioCtx.currentTime+dur);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime+dur);
+    }catch(e){}
+  }
+
+  function playBlip(){ playTone(rand(600,900),0.08,'square',0.08); }
+  function playClick(){ playTone(880,0.06,'triangle',0.1,440); }
+  function playWhoosh(){ playTone(1200,0.35,'sawtooth',0.06,200); }
+  function playSuccess(){ 
+    [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.18,'triangle',0.1),i*90));
+  }
+  function playBirthdayFanfare(){
+    const notes=[523,523,587,523,698,659,523,523,587,523,784,698];
+    notes.forEach((f,i)=>setTimeout(()=>playTone(f,0.28,'triangle',0.11),i*180));
+  }
+
+  // Сирена (тревога)
+  function startSiren(){
+    if(!soundEnabled) return;
+    initAudio();
+    if(!audioCtx) return;
+    stopSiren();
+    try{
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      osc.type='sawtooth';
+      osc.frequency.value=700;
+      lfo.type='sine';
+      lfo.frequency.value=3.5;
+      lfoGain.gain.value=350;
+      lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+      gain.gain.value=0.11;
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); lfo.start();
+      alarmNodes={osc,gain,lfo};
+    }catch(e){}
+  }
+  function stopSiren(){
+    if(alarmNodes){
+      try{ alarmNodes.osc.stop(); alarmNodes.lfo.stop(); }catch(e){}
+      try{ alarmNodes.gain.disconnect(); }catch(e){}
+      alarmNodes=null;
+    }
+  }
+
+  // ==================== КНОПКА ЗВУКА ====================
+  const muteBtn=$('mute-btn');
+  muteBtn.addEventListener('click',()=>{
+    soundEnabled=!soundEnabled;
+    muteBtn.textContent = soundEnabled?'🔊':'🔇';
+    muteBtn.classList.toggle('off',!soundEnabled);
+    if(!soundEnabled){ stopSiren(); }
+    else if($('alarm-screen').classList.contains('active') && !$('finalAlarmMessage').classList.contains('active')){
+      startSiren();
+    }
+  });
+
+  // ==================== ЧАСТИЦЫ ====================
+  const confettiColors=['#ff0','#f0f','#0ff','#0f0','#ff4444','#ffd700','#ff00cc','#00ffaa','#ff8800'];
+  const emojiList=['🎉','🎂','🎁','🚀','⭐','🧢','💰','🔥','💸','🏆','👑','💎','🎊','✨','🥳'];
+
+  function spawnConfetti(count=50){
+    for(let i=0;i<count;i++){
+      const c=document.createElement('div');
+      c.className='confetti';
+      const size=randInt(6,14);
+      c.style.width=size+'px';
+      c.style.height=(size*rand(0.5,1))+'px';
+      c.style.background=confettiColors[randInt(0,confettiColors.length-1)];
+      c.style.left=rand(0,100)+'vw';
+      c.style.top='-20px';
+      c.style.borderRadius=Math.random()>.5?'50%':'2px';
+      c.style.boxShadow='0 0 10px currentColor';
+      c.style.transform=`rotate(${rand(0,360)}deg)`;
+      document.body.appendChild(c);
+      const dur=rand(2.5,5);
+      const delay=rand(0,1.2);
+      const rot=rand(-720,720);
+      c.animate([
+        {transform:`translateY(0) rotate(0deg)`,opacity:1},
+        {transform:`translateY(${window.innerHeight+80}px) rotate(${rot}deg)`,opacity:0}
+      ],{duration:dur*1000,delay:delay*1000,easing:'cubic-bezier(.3,.6,.5,1)',fill:'forwards'});
+      setTimeout(()=>c.remove(),(dur+delay)*1000+200);
+    }
+  }
+
+  function spawnEmoji(count=15){
+    for(let i=0;i<count;i++){
+      const e=document.createElement('div');
+      e.className='particle';
+      e.textContent=emojiList[randInt(0,emojiList.length-1)];
+      e.style.left=rand(0,100)+'vw';
+      e.style.top='-40px';
+      e.style.fontSize=randInt(18,40)+'px';
+      e.style.filter='drop-shadow(0 0 10px #fff)';
+      document.body.appendChild(e);
+      const dur=rand(2.5,4.5),delay=rand(0,1.2),rot=rand(-540,540);
+      e.animate([
+        {transform:`translateY(0) rotate(0) scale(${rand(.6,1.2)})`,opacity:1},
+        {transform:`translateY(${window.innerHeight+80}px) rotate(${rot}deg) scale(${rand(.8,1.4)})`,opacity:0}
+      ],{duration:dur*1000,delay:delay*1000,easing:'cubic-bezier(.3,.6,.5,1)',fill:'forwards'});
+      setTimeout(()=>e.remove(),(dur+delay)*1000+200);
+    }
+  }
+
+  // ==================== ПЕРЕКЛЮЧЕНИЕ СЛАЙДОВ ====================
+  function goToSlide(n){
+    document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+    $('slide'+n).classList.add('active');
+    playWhoosh();
+    spawnConfetti(30);
+    if(n===2) animateDossier();
+    if(n===4) animateFuture();
+    if(n===5) animateFinalSlide();
+  }
+
+  // ==================== СЛАЙД 1 ====================
+  let progress=0;
+  const progressFill=$('progressFill');
+  const progressPct=$('progressPct');
+  const loadingText=$('loadingText');
+  const epicTitle1=$('epicTitle1');
+  const epicSubtitle=$('epicSubtitle');
+  const btnGoSlide2=$('btnGoSlide2');
+
+  const progressInterval=setInterval(()=>{
+    progress+=rand(1.5,6);
+    if(progress>=100){progress=100;clearInterval(progressInterval);finishLoading();}
+    progressFill.style.width=progress+'%';
+    progressPct.textContent=Math.floor(progress)+'%';
+    if(progress%12<3) playBlip();
+    if(Math.random()<0.4){
+      loadingText.textContent = ['ЗАГРУЗКА СИСТЕМЫ ПОЗДРАВЛЕНИЯ...','ПОДКЛЮЧЕНИЕ К СЕРВЕРУ ЛЕГЕНД...','КАЛИБРОВКА КЕПКИ ДУРОВА...','ПРОВЕРКА УРОВНЯ КРУТОСТИ АРТЁМА...','ЗАГРУЗКА МЕМОВ ИЗ TELEGRAM...'][randInt(0,4)];
+    }
+  },110);
+
+  function finishLoading(){
+    loadingText.textContent='✅ СИСТЕМА ГОТОВА';
+    playSuccess();
+    setTimeout(()=>{
+      loadingText.style.transition='opacity .5s';
+      loadingText.style.opacity='0';
+      setTimeout(()=>{loadingText.style.display='none';},500);
+      epicTitle1.classList.add('show');
+      spawnConfetti(60); spawnEmoji(10);
+      playTone(400,0.3,'square',0.12,1200);
+      setTimeout(()=>{
+        epicSubtitle.classList.add('show');
+        spawnConfetti(40); spawnEmoji(10);
+        setTimeout(()=>{
+          btnGoSlide2.style.display='inline-block';
+          playBirthdayFanfare();
+        },1200);
+      },900);
+    },400);
+  }
+
+  // ==================== СЛАЙД 2 ====================
+  function animateDossier(){
+    ['d1','d2','d3','d4','d5','d6'].forEach((id,i)=>{
+      const el=$(id);
+      el.classList.remove('visible');
+      setTimeout(()=>{el.classList.add('visible');playBlip();},300+i*320);
+    });
+    // случайные частицы на "радаре"
+    let scanCount=0;
+    const scanInt=setInterval(()=>{
+      if(!$('slide2').classList.contains('active')||scanCount>10){clearInterval(scanInt);return;}
+      spawnEmoji(2); scanCount++;
+    },500);
+  }
+
+  // ==================== СЛАЙД 4 ====================
+  function animateFuture(){
+    ['f1','f2','f3','f4','f5'].forEach((id,i)=>{
+      const el=$(id);
+      el.classList.remove('visible');
+      setTimeout(()=>{el.classList.add('visible');playTone(rand(500,900),0.1,'square',0.09);},300+i*380);
+    });
+  }
+
+  // ==================== СЛАЙД 5 ====================
+  function animateFinalSlide(){
+    const t1=$('finalText1'), t2=$('finalText2'), btn=$('btnContinue');
+    t1.classList.remove('show'); t2.classList.remove('show');
+    btn.style.display='none';
+    setTimeout(()=>{t1.classList.add('show');playTone(500,0.3,'sine',0.1);},300);
+    setTimeout(()=>{t2.classList.add('show');playTone(700,0.3,'sine',0.1);spawnConfetti(20);},1500);
+    setTimeout(()=>{btn.style.display='inline-block';playSuccess();},2600);
+  }
+
+  // ==================== НАВИГАЦИЯ ====================
+  $('btnGoSlide2').addEventListener('click',()=>{playClick();goToSlide(2);});
+  $('btnGoSlide3').addEventListener('click',()=>{playClick();goToSlide(3);spawnEmoji(10);});
+  $('btnGoSlide4').addEventListener('click',()=>{playClick();goToSlide(4);});
+  $('btnGoSlide5').addEventListener('click',()=>{playClick();goToSlide(5);});
+
+  // ==================== СЕКРЕТНЫЙ РЕЖИМ ====================
+  const alarmScreen=$('alarm-screen');
+  const alarmMainText=$('alarmMainText');
+  const alarmSubText=$('alarmSubText');
+  const glitchText=$('glitchText');
+  const finalAlarmMessage=$('finalAlarmMessage');
+  const matrixBg=$('matrixBg');
+
+  const alarmPhrases=[
+    'ОБЪЕКТ АРТЁМ ОБНАРУЖЕН',
+    'ПОПЫТКА СКРЫТЬСЯ НЕ УДАЛАСЬ',
+    'СЛИШКОМ ЛЕГЕНДАРЕН ДЛЯ ЭТОЙ СИСТЕМЫ',
+    'КЕПКА ДУРОВА УЖЕ В ПУТИ',
+    'ПОЗДРАВЛЕНИЕ УСПЕШНО ДОСТАВЛЕНО'
+  ];
+  const glitchPhrases=[
+    '⚠️ СИСТЕМА СЛЕЖКИ АКТИВИРОВАНА ⚠️',
+    '>> СКАНИРОВАНИЕ УРОВНЯ ЛЕГЕНДАРНОСТИ... <<',
+    '>> ДОСТУП К КЕПКЕ ДУРОВА ПОЛУЧЕН <<',
+    '<< ВНИМАНИЕ: ОБЪЕКТ СЛИШКОМ КРУТ >>',
+    '>> ПОЗДРАВЛЕНИЕ ДОСТАВЛЕНО НА 9999% <<'
+  ];
+
+  let alarmInterval,matrixInterval,finalTimer,glitchInterval;
+
+  function startAlarm(){
+    initAudio();
+    soundEnabled=true;
+    muteBtn.textContent='🔊'; muteBtn.classList.remove('off');
+    startSiren();
+
+    alarmScreen.classList.add('active');
+    finalAlarmMessage.classList.remove('active');
+    alarmMainText.style.display='block';
+    alarmSubText.style.display='block';
+    glitchText.style.display='block';
+
+    clearInterval(alarmInterval); clearInterval(matrixInterval); clearInterval(glitchInterval); clearTimeout(finalTimer);
+
+    let pi=0;
+    alarmInterval=setInterval(()=>{
+      alarmSubText.textContent=alarmPhrases[pi%alarmPhrases.length];
+      pi++;
+      glitchText.textContent=glitchPhrases[pi%glitchPhrases.length];
+      playTone(rand(300,700),0.08,'square',0.05);
+    },650);
+
+    glitchInterval=setInterval(()=>{
+      glitchText.style.transform=`translate(${randInt(-4,4)}px,${randInt(-4,4)}px)`;
+    },100);
+
+    // Матрица
+    matrixBg.innerHTML='';
+    const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}:<>?АРТЁМКЕПКАДУРОВ';
+    for(let i=0;i<50;i++){
+      const s=document.createElement('span');
+      s.textContent=chars[randInt(0,chars.length-1)];
+      s.style.left=rand(0,100)+'vw';
+      s.style.animationDuration=rand(1.5,5)+'s';
+      s.style.animationDelay=rand(0,3)+'s';
+      s.style.fontSize=rand(0.8,2)+'rem';
+      s.style.opacity=rand(0.3,0.9);
+      matrixBg.appendChild(s);
+    }
+    matrixInterval=setInterval(()=>{
+      matrixBg.querySelectorAll('span').forEach(s=>{
+        if(Math.random()<0.08) s.textContent=chars[randInt(0,chars.length-1)];
+      });
+    },250);
+
+    // Через 6.5 сек — финал
+    finalTimer=setTimeout(()=>{
+      stopSiren();
+      clearInterval(alarmInterval); clearInterval(matrixInterval); clearInterval(glitchInterval);
+      alarmMainText.style.display='none';
+      alarmSubText.style.display='none';
+      glitchText.style.display='none';
+      finalAlarmMessage.classList.add('active');
+      playBirthdayFanfare();
+      spawnConfetti(120); spawnEmoji(25);
+      // ещё частицы через паузы
+      setTimeout(()=>{spawnConfetti(60);spawnEmoji(15);},800);
+      setTimeout(()=>{spawnConfetti(60);spawnEmoji(15);},1600);
+    },6500);
+  }
+
+  function stopAlarm(){
+    alarmScreen.classList.remove('active');
+    finalAlarmMessage.classList.remove('active');
+    clearInterval(alarmInterval); clearInterval(matrixInterval); clearInterval(glitchInterval); clearTimeout(finalTimer);
+    stopSiren();
+    matrixBg.innerHTML='';
+    goToSlide(3);
+    playSuccess();
+  }
+
+  $('btnContinue').addEventListener('click',()=>{playClick();startAlarm();});
+  $('btnBackToCongrats').addEventListener('click',()=>{playClick();stopAlarm();});
+
+  // ==================== ПЛАВАЮЩИЕ ЧАСТИЦЫ ФОНА ====================
+  // (эмодзи уже в разметке, но добавим ещё для жизни)
+  function addFloatingEmoji(){
+    const emojis=['🎂','🎉','🚀','🧢','💰','⭐','🔥','💎','👑','🎁','✨','🥳'];
+    const e=document.createElement('div');
+    e.className='float-emoji';
+    e.textContent=emojis[randInt(0,emojis.length-1)];
+    e.style.left=rand(0,100)+'vw';
+    e.style.fontSize=rand(1.2,2.5)+'rem';
+    e.style.animationDuration=rand(10,20)+'s';
+    e.style.animationDelay=rand(0,8)+'s';
+    e.style.color=confettiColors[randInt(0,confettiColors.length-1)];
+    $('app').appendChild(e);
+    setTimeout(()=>e.remove(),25000);
+  }
+  setInterval(()=>{ if(!alarmScreen.classList.contains('active')) addFloatingEmoji(); },2500);
+  for(let i=0;i<5;i++) setTimeout(addFloatingEmoji,i*400);
+
+  // ==================== БЕГУЩАЯ СТРОКА ====================
+  // уже анимирована CSS
+
+  // ==================== ИНТЕРАКТИВ: клики по экрану ====================
+  document.addEventListener('click',e=>{
+    if(e.target.closest('button')) return;
+    if(alarmScreen.classList.contains('active')) return;
+    // маленький фейерверк из эмодзи в точке клика
+    if(Math.random()<0.6){
+      const rect={x:e.clientX,y:e.clientY};
+      const emoji=emojiList[randInt(0,emojiList.length-1)];
+      const el=document.createElement('div');
+      el.textContent=emoji;
+      el.style.cssText=`position:fixed;left:${rect.x}px;top:${rect.y}px;font-size:${randInt(20,34)}px;pointer-events:none;z-index:9998;`;
+      document.body.appendChild(el);
+      el.animate([
+        {transform:'translate(-50%,-50%) scale(1)',opacity:1},
+        {transform:`translate(${rand(-60,60)}px,${rand(-120,-40)}px) scale(.3)`,opacity:0}
+      ],{duration:900,easing:'cubic-bezier(.2,.8,.4,1)',fill:'forwards'});
+      setTimeout(()=>el.remove(),950);
+      playBlip();
+    }
+  });
+
+  // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+  window.addEventListener('load',()=>{
+    initAudio();
+    // лёгкий шум загрузки
+    playTone(200,0.15,'sine',0.05);
+  });
+
+  // отключение контекстного меню
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+
+  // глушение ошибок
+  window.addEventListener('error',()=>{});
+
+})();
+</script>
+</body>
+</html>
